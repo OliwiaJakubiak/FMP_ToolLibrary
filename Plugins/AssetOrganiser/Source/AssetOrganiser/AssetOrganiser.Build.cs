@@ -38,8 +38,12 @@ public class AssetOrganiser : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				// ... add private dependencies that you statically link with here ...	
-			}
+				"Core",
+				"InputCore",
+				"AssetRegistry", // For accessing and scanning asset data
+				"EditorScriptingUtilities", // For editor scripting capabilities (renaming assets, moving assets, etc.)
+				"UnrealEd", // For editor functionalities (asset management, etc.)
+            }
 			);
 		
 		

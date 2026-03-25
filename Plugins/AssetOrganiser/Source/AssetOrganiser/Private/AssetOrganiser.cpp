@@ -1,20 +1,47 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AssetOrganiser.h"
+#include "Modules/ModuleManager.h"
+#include "AssetRegistry/AssetData.h"
+#include "EditorAssetLibrary.h" // Requires EditorScriptingUtilities module
+#include "AssetRegistry/AssetRegistryModule.h"
 
-#define LOCTEXT_NAMESPACE "FAssetOrganiserModule"
+IMPLEMENT_MODULE(FDefaultModuleImpl, AssetOrganiser);
 
-void FAssetOrganiserModule::StartupModule()
+int32 UAssetOrganiserFunctionLibrary::BatchOrganiseAssets_CPP(const TArray<FAssetData>& SelectedAssets, const TMap<UClass*, FAssetOrganiserRule>& OrganiserRules, bool bIsDryRun)
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-}
+	int32 SuccessCount = 0;
 
-void FAssetOrganiserModule::ShutdownModule()
-{
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
-}
+	for (const FAssetData& Asset : SelectedAssets)
+	{
+		UClass* AssetClass = Asset.GetClass();
 
-#undef LOCTEXT_NAMESPACE
-	
-IMPLEMENT_MODULE(FAssetOrganiserModule, AssetOrganiser)
+		// Check if there is a rule for this asset's class
+		if (OrganiserRules.Contains(AssetClass))
+		{
+			const FAssetOrganiserRule& Rule = OrganiserRules[AssetClass];
+
+			// Build the new path for the asset: {Folder}/{Sub}/{Prefix}_{Name}
+			FString OldPath = Asset.PackagePath.ToString();
+			FString NewPath = FString::Printf(TEXT("%s/%s/%s%s"),
+				*OldPath,
+				*Rule.FolderName,
+				*Rule.Prefix,
+				*Asset.AssetName.ToString());
+
+			if (bIsDryRun)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("DRY RUN: Moving asset '%s' to '%s'"), *Asset.GetFullName(), *NewPath);
+				continue;
+			}
+
+			// Perform actual move and rename
+			if (UEditorAssetLibrary::RenameAsset(Asset.PackageName.ToString(), NewPath))
+			{
+				SuccessCount++;
+			}
+		}
+	}
+
+	return SuccessCount;
+}
