@@ -43,6 +43,10 @@ public class AssetOrganiser : ModuleRules
 				"AssetRegistry", // For accessing and scanning asset data
 				"EditorScriptingUtilities", // For editor scripting capabilities (renaming assets, moving assets, etc.)
 				"UnrealEd", // For editor functionalities (asset management, etc.)
+				"Blutility", // For Blueprint utilities
+				"LevelEditor", // For level editor functionalities (required to access the toolbar and menu extensions)
+				"UMG", // For UI development (if you are creating custom UI for your asset organiser)
+				"UMGEditor", // For UMG editor functionalities (if you are creating custom UI for your asset organiser)
             }
 			);
 		
