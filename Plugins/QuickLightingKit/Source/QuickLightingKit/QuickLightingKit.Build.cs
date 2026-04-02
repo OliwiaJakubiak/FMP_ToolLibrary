@@ -35,10 +35,13 @@ public class QuickLightingKit : ModuleRules
 			new string[]
 			{
 				"CoreUObject",
-				"Engine",
+				"Engine", // Essential for lights and fog actors
 				"Slate",
 				"SlateCore",
-				// ... add private dependencies that you statically link with here ...	
+				"Core",
+                "InputCore", // For input handling
+				"EditorScriptingUtilities", // For editor scripting capabilities (renaming assets, moving assets, etc.)
+				"UnrealEd" // For editor functionalities (asset management, etc.)
 			}
 			);
 		
