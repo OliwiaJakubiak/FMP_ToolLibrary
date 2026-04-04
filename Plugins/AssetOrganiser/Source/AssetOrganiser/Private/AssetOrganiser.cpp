@@ -6,6 +6,7 @@
 #include "EditorUtilitySubsystem.h" // For launching the editor utility widget
 #include "EditorAssetLibrary.h" // Requires EditorScriptingUtilities module
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "ToolMenus.h" // For menu extension
 
 #define LOCTEXT_NAMESPACE "FAssetOrganiserModule" // For logging purposes
 
@@ -13,39 +14,72 @@ IMPLEMENT_MODULE(FAssetOrganiserModule, AssetOrganiser);
 
 void FAssetOrganiserModule::StartupModule()
 {
-	// Register menu extension
-	// Get Level Editor module to extend the menu
-	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
-	// Create a menu extender
-	MenuExtender = MakeShareable(new FExtender());
-	MenuExtender->AddMenuBarExtension(
-		"Help", // Right after menu help menu, change as needed
-		EExtensionHook::After,
-		nullptr,
-		FMenuBarExtensionDelegate::CreateRaw(this, &FAssetOrganiserModule::AddMenuBarExtension));
-	// Add the extender to the level editor
-	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuExtender);
+	UE_LOG(LogTemp, Warning, TEXT("Oliwia's DevTools: Module started!"));
+	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FAssetOrganiserModule::RegisterMenus));
 }
 
-void FAssetOrganiserModule::AddMenuBarExtension(FMenuBarBuilder& Builder)
+void FAssetOrganiserModule::RegisterMenus()
 {
-	// Creates a new menu entry 
-	Builder.AddPullDownMenu(
-		LOCTEXT("MainBtn_Label", "Oliwia's DevTools"), // Menu label
-		LOCTEXT("MainBtn_Tooltip", "Custom pipeline and organisation tools"), // Menu tooltip
-		FNewMenuDelegate::CreateRaw(this, &FAssetOrganiserModule::FillMenu), // Delegate to fill the menu
-		"OliwiaDevTools" // ID, shared across all plugins in the same menu, change as needed
+	// Ensure UToolMenus is available
+	if (!UToolMenus::IsToolMenuUIEnabled())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Oliwia's DevTools: UToolMenus is not enabled. Menu extension will not work."));
+		return;
+	}
+	// register against multiple menus 
+	// level editor - main level editor menu
+	// main frame - the main editor menu, appears in all contexts (including when no level is open)
+	TArray<FName> MenuTargets = {
+		FName("LevelEditor.MainMenu"),
+		FName("MainFrame.MainMenu")
+	};
+
+	for (const FName& MenuName : MenuTargets)
+	{
+		UToolMenu* MainMenu = UToolMenus::Get()->ExtendMenu(MenuName);
+		if (!MainMenu)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Oliwia's DevTools: Failed to extend menu %s"), *MenuName.ToString());
+			continue;
+		}
+
+		// Check if custom section exists, if not create it (avoids duplicates if multiple plugins try to add to the same section)
+		if (MainMenu->ContainsSection("OliwiasDevTools"))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Oliwia's DevTools: Menu section already exists, skipping creation"));
+			continue;
+		}
+		// Add custom top level section for our plugin, explicitly after help section
+		FToolMenuSection& Section = MainMenu->AddSection(
+			"OliwiasDevTools",
+			TAttribute<FText>(),
+			FToolMenuInsert("Help", EToolMenuInsertType::After)
+		);
+		Section.AddSubMenu(
+			"OliwiaDevToolsMenu",
+			LOCTEXT("MainBtn_Label", "Oliwia's DevTools"), // Submenu label
+			LOCTEXT("MainBtn_Tooltip", "Custom pipeline and organisation tools"), // Submenu tooltip
+			FNewToolMenuDelegate::CreateRaw(this, &FAssetOrganiserModule::FillMenu) // Delegate to fill the submenu with entries
+		);
+
+		UE_LOG(LogTemp, Warning, TEXT("Oliwia's DevTools: Menu registered successfully"));
+	}
+}
+
+void FAssetOrganiserModule::FillMenu(UToolMenu* Menu)
+{
+	// Each tool in the submenu gets its own section, this is mostly for visual clarity but also allows users to easily find the entry for a specific tool if we add more in the future
+	FToolMenuSection& Section = Menu->AddSection(
+		"OliwiaDevToolsSection",
+		LOCTEXT("OliwiaDevToolsSection_Label", "Tools")
 	);
-}
-
-void FAssetOrganiserModule::FillMenu(FMenuBuilder& Builder)
-{
-	// Adds an entry to the menu that launches the editor utility widget
-	Builder.AddMenuEntry(
-		LOCTEXT("OrganiserBtn_Label", "Smart Asset Organiser"), // Button label)
-		LOCTEXT("OrganiserBtn_Tooltip", "Opens the organisation utility widget"), // Button tooltip)
-		FSlateIcon(), // Icon, can be set to a custom one if desired
-		FUIAction(FExecuteAction::CreateRaw(this, &FAssetOrganiserModule::TriggerAssetOrganiser)) // Delegate to trigger the widget)
+	// Add Smart Asset Organiser entry to the submenu, this will launch the editor utility widget when clicked
+	Section.AddMenuEntry(
+		"SmartAssetOrganiser",
+		LOCTEXT("OrganiserBtn_Label", "Smart Asset Organiser"),
+		LOCTEXT("OrganiserBtn_Tooltip", "Opens the organisation utility widget"),
+		FSlateIcon(),
+		FUIAction(FExecuteAction::CreateRaw(this, &FAssetOrganiserModule::TriggerAssetOrganiser))
 	);
 }
 
@@ -72,7 +106,9 @@ void FAssetOrganiserModule::TriggerAssetOrganiser()
 
 void FAssetOrganiserModule::ShutdownModule()
 {
-	// Cleanup if necessary
+	// Properly unregister all UToolMenus delegates to avoid issues with dangling pointers and ensure clean shutdown
+	UToolMenus::UnRegisterStartupCallback(this);
+	UToolMenus::UnregisterOwner(this);
 }
 
 // -- CORE LOGIC: takes an array of assets and an array of rules, and returns a map of assets to their new paths --

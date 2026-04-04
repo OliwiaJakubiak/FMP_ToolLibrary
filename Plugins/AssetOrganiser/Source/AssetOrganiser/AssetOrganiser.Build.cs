@@ -47,6 +47,8 @@ public class AssetOrganiser : ModuleRules
 				"LevelEditor", // For level editor functionalities (required to access the toolbar and menu extensions)
 				"UMG", // For UI development (if you are creating custom UI for your asset organiser)
 				"UMGEditor", // For UMG editor functionalities (if you are creating custom UI for your asset organiser)
+				"ToolMenus", // For creating custom tool menus (if you are adding custom menu entries for your asset organiser)
+				"MainFrame" // For accessing the main frame of the editor (if you are creating custom UI for your asset organiser)	
             }
 			);
 		

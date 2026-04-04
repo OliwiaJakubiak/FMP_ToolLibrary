@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AssetRegistry/AssetData.h"
 #include "Modules/ModuleManager.h" // For module implementation
+#include "ToolMenus.h" // For menu extension
 #include "AssetOrganiser.generated.h"
 
 // Passing folder and prefix rules from UI to C++ code
@@ -40,12 +41,7 @@ public:
 	virtual void ShutdownModule() override;
 
 private:
-	// handle menu creation
-	void AddMenuBarExtension(FMenuBarBuilder& Builder);
-	void FillMenu(FMenuBuilder& Builder);
-
-	// launches the editor utility widget
-	void TriggerAssetOrganiser();
-
-	TSharedPtr<FExtender> MenuExtender;
+	void RegisterMenus(); // Registers the menu extension to add the "Smart Asset Organiser" entry to the editor's menu
+	void FillMenu(UToolMenu* Menu); // Fills the submenu with entries, currently just the "Smart Asset Organiser" entry but can be expanded in the future
+	void TriggerAssetOrganiser(); // Loads and launches the editor utility widget when the "Smart Asset Organiser" entry is clicked
 };
