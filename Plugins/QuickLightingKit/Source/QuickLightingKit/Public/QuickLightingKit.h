@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h" // For basic types and macros
 #include "Kismet/BlueprintFunctionLibrary.h" // For UFUNCTION(BlueprintCallable)
+#include "Modules/ModuleManager.h"
+#include "ToolMenus.h"
 #include "QuickLightingKit.generated.h" // Must be the last include
 
 UCLASS()
@@ -22,4 +24,15 @@ public:
 		float SunIntensity,
 		float SkyIntensity,
 		float FogDensity);
+};
+
+class FQuickLightingKitModule : public IModuleInterface
+{
+public:
+	virtual void StartupModule() override;
+	virtual void ShutdownModule() override;
+private: 
+	void RegisterMenus();
+	void FillMenu(UToolMenu* Menu);
+	void TriggerQuickLightingKit();
 };

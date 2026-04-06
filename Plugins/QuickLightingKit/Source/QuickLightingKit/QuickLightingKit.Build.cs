@@ -41,7 +41,13 @@ public class QuickLightingKit : ModuleRules
 				"Core",
                 "InputCore", // For input handling
 				"EditorScriptingUtilities", // For editor scripting capabilities (renaming assets, moving assets, etc.)
-				"UnrealEd" // For editor functionalities (asset management, etc.)
+				"UnrealEd", // For editor functionalities (asset management, etc.)
+				"LevelEditor",
+				"ToolMenus",
+				"MainFrame",
+				"UMG",
+				"UMGEditor",
+				"Blutility"
 			}
 			);
 		
