@@ -38,7 +38,24 @@ public class MeshUtilityKit : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				// ... add private dependencies that you statically link with here ...	
+				// Default
+				"Core",
+				"InputCore",
+				"AssetRegistry",
+				"EditorScriptingUtilities",
+				"UnrealEd",
+				// Tool Menu
+				"Blutility",
+				"LevelEditor",
+				"UMG",
+				"UMGEditor",
+				"ToolMenus",
+				"MainFrame",
+				// Plugin Specific
+				"MeshDescription",
+				"StaticMeshDescription",
+				"MeshUtilities",
+				"PhysicsCore",
 			}
 			);
 		
