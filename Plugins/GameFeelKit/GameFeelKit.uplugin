@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "GameFeelKit",
-	"Description": "",
+	"Description": "A component-based plugin providing essential game feel effects",
 	"Category": "Other",
 	"CreatedBy": "Oliwia Jakubiak",
 	"CreatedByURL": "",
@@ -17,8 +17,18 @@
 	"Modules": [
 		{
 			"Name": "GameFeelKit",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
 		}
 	]
 }
