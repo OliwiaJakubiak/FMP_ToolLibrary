@@ -555,23 +555,14 @@ void UGameFeelPreviewLibrary::PreviewBGM(UObject* WorldContextObject, USoundBase
 		ActivePreviewBGM = nullptr;
 	}
 
-	UAudioComponent* AudioComp = UGameplayStatics::SpawnSound2D(
+	ActivePreviewBGM = UGameplayStatics::SpawnSoundAtLocation(
 		World,
 		Music,
+		FVector::ZeroVector,
+		FRotator::ZeroRotator,
 		Volume,
-		1.0f,
-		0.0f,
-		nullptr,
-		false,
-		true
+		1.0f
 	);
-
-	if (AudioComp)
-	{
-		AudioComp->SetVolumeMultiplier(0.0f);
-		AudioComp->FadeIn(FadeIn, Volume);
-		ActivePreviewBGM = AudioComp; // Store reference for StopBGMPreview
-	}
 }
 
 void UGameFeelPreviewLibrary::StopBGMPreview()
