@@ -98,7 +98,7 @@ void FUIMenuForgeModule::FillMenu(UToolMenu* Menu)
 
 void FUIMenuForgeModule::TriggerUIMenuForge()
 {
-    FString WidgetPath = TEXT("/UIMenuForge/UI/EUW/EUW_UIMenuForge.EUW_UIMenuForge");
+    FString WidgetPath = TEXT("/UIMenuForge/UI/EUW/WBP_UIMenuForge.WBP_UIMenuForge");
     UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
     if (WidgetObj)
     {
