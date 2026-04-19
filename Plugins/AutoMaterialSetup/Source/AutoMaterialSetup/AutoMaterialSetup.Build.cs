@@ -38,8 +38,25 @@ public class AutoMaterialSetup : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				// ... add private dependencies that you statically link with here ...	
-			}
+				"Core",
+				"InputCore",
+				// Menu
+				"UnrealEd",
+				"Blutility",
+				"LevelEditor",
+				"UMG",
+				"UMGEditor",
+				"ToolMenus",
+				"MainFrame",
+				"EditorScriptingUtilities",
+				// Plugin specific
+				"AssetRegistry",
+				"AssetTools",
+				"MaterialEditor",
+				"ContentBrowser",
+				"ContentBrowserData",
+				"Kismet"
+            }
 			);
 		
 		
