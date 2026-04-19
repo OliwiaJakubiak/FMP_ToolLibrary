@@ -81,18 +81,18 @@ void FQuickLightingKitModule::RegisterMenus()
 void FQuickLightingKitModule::FillMenu(UToolMenu* Menu)
 {
 	// --
-	// CATEGORY: "Lighting"
+	// CATEGORY: "Environment"
 	// To place this tool under a different category, change the section name and label below 
-	// If anohter tool shares this category use the identical section name and it will group automatically
+	// If another tool shares this category use the identical section name and it will group automatically
 	// --
-	if (!Menu->ContainsSection("OliwiaDevTools_Lighting"))
+	if (!Menu->ContainsSection("OliwiaDevTools_Environment"))
 	{
 		Menu->AddSection(
-			"OliwiaDevTools_Lighting",
-			LOCTEXT("LightingSection_Label", "Lighting")
+			"OliwiaDevTools_Environment",
+			LOCTEXT("EnvironmentSection_Label", "Environment")
 		);
 	}
-	FToolMenuSection* Section = Menu->FindSection("OliwiaDevTools_Lighting");
+	FToolMenuSection* Section = Menu->FindSection("OliwiaDevTools_Environment");
 	if (!Section) return;
 
 	Section->AddMenuEntry(
