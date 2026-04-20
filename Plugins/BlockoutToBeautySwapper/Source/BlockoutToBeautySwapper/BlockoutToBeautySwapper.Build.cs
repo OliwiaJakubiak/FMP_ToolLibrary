@@ -38,8 +38,25 @@ public class BlockoutToBeautySwapper : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				// ... add private dependencies that you statically link with here ...	
-			}
+				"Core",
+				"InputCore",
+				// Menu
+				"UnrealEd",
+				"Blutility",
+				"LevelEditor",
+				"UMG",
+				"UMGEditor",
+				"ToolMenus",
+				"MainFrame",
+				"EditorScriptingUtilities",
+				// Plugin Specific
+				"Kismet",
+				"EditorFramework",
+				"SubobjectEditor",
+				"ContentBrowser",
+				"ContentBrowserData",
+				"AssetRegistry"
+            }
 			);
 		
 		
