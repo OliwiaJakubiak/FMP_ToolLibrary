@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "UniversalAnimTemplate",
+	"Description": "Generate a custom Animation Blueprint with states you need, fully wired and ready to use",
+	"Category": "Other",
+	"CreatedBy": "Oliwia Jakubiak",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "UniversalAnimTemplate",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
