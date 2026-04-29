@@ -92,17 +92,16 @@ void FAssetOrganiserModule::TriggerAssetOrganiser()
 {
 	FString WidgetPath = TEXT("/AssetOrganiser/UI/EUW_AssetOrganiser.EUW_AssetOrganiser"); // Path to the widget blueprint, change as needed)
 	UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
-	if (WidgetObj)
+	if (WidgetObj != nullptr)
 	{
 		UEditorUtilityWidgetBlueprint* WidgetBP = Cast<UEditorUtilityWidgetBlueprint>(WidgetObj);
-		if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+		if (WidgetBP != nullptr)
 		{
-			Subsystem->SpawnAndRegisterTab(WidgetBP);
+			if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+			{
+				Subsystem->SpawnAndRegisterTab(WidgetBP);
+			}
 		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Oliwia's DevTools: Could not find EUW at %s"), *WidgetPath);
 	}
 }
 void FAssetOrganiserModule::ShutdownModule()

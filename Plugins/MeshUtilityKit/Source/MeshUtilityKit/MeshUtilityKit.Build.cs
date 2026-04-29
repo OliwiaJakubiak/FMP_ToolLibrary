@@ -25,7 +25,6 @@ public class MeshUtilityKit : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,24 +37,22 @@ public class MeshUtilityKit : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				// Default
 				"Core",
 				"InputCore",
-				"AssetRegistry",
-				"EditorScriptingUtilities",
+				// Menu
 				"UnrealEd",
-				// Tool Menu
 				"Blutility",
 				"LevelEditor",
 				"UMG",
 				"UMGEditor",
 				"ToolMenus",
 				"MainFrame",
+				"EditorScriptingUtilities",
 				// Plugin Specific
+				"AssetRegistry",
 				"MeshDescription",
 				"StaticMeshDescription",
-				"MeshUtilities",
-				"PhysicsCore",
+				"PhysicsCore"
 			}
 			);
 		

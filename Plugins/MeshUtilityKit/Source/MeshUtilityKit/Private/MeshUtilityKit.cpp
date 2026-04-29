@@ -14,20 +14,19 @@
 #include "PhysicsEngine/BodySetup.h"
 #include "StaticMeshAttributes.h"
 #include "MeshDescription.h"
-#include "Misc/ScopedSlowTask.h"
 #include "Editor.h"
 
 #define LOCTEXT_NAMESPACE "FMeshUtilityKitModule"
+IMPLEMENT_MODULE(FMeshUtilityKitModule, MeshUtilityKit)
 
-IMPLEMENT_MODULE(FMeshUtilityKitModule, MeshUtilityKit);
-
-// -- MODULE STARTUP / SHUTDOWN -- 
+// ------------
+// -- MODULE --
+// ------------
 
 void FMeshUtilityKitModule::StartupModule()
 {
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FMeshUtilityKitModule::RegisterMenus));
 }
-
 void FMeshUtilityKitModule::RegisterMenus()
 {
 	if (!UToolMenus::IsToolMenuUIEnabled()) return;
@@ -36,12 +35,10 @@ void FMeshUtilityKitModule::RegisterMenus()
 		FName("LevelEditor.MainMenu"),
 		FName("MainFrame.MainMenu")
 	};
-
 	for (const FName& MenuName : MenuTargets)
 	{
 		UToolMenu* MainMenu = UToolMenus::Get()->ExtendMenu(MenuName);
 		if (!MainMenu) continue;
-
 		if (!MainMenu->ContainsSection("OliwiasDevTools"))
 		{
 			FToolMenuSection& Section = MainMenu->AddSection(
@@ -74,10 +71,9 @@ void FMeshUtilityKitModule::RegisterMenus()
 		}
 	}
 }
-
 void FMeshUtilityKitModule::FillMenu(UToolMenu* Menu)
 {
-	// -- Category: 3D Art -- 
+	// CATEGORY: "3D Art" 
 	if (!Menu->ContainsSection("OliwiaDevTools_3DArt"))
 	{
 		Menu->AddSection(
@@ -91,67 +87,70 @@ void FMeshUtilityKitModule::FillMenu(UToolMenu* Menu)
 	Section->AddMenuEntry(
 		"MeshUtilityKit",
 		LOCTEXT("MeshUtilityKitBtn_Label", "Mesh Utility Kit"),
-		LOCTEXT("MeshUtilityKitBtn)Tooltip", "Opens the mesh utility widget"),
+		LOCTEXT("MeshUtilityKitBtn_Tooltip", "Opens the mesh utility widget"),
 		FSlateIcon(),
 		FUIAction(FExecuteAction::CreateRaw(this, &FMeshUtilityKitModule::TriggerMeshUtilityKit))
 	);
 }
-
 void FMeshUtilityKitModule::TriggerMeshUtilityKit()
 {
 	FString WidgetPath = TEXT("/MeshUtilityKit/UI/EUW_MeshUtilityKit.EUW_MeshUtilityKit");
 	UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
+	if (WidgetObj != nullptr)
 	{
 		UEditorUtilityWidgetBlueprint* WidgetBP = Cast<UEditorUtilityWidgetBlueprint>(WidgetObj);
-		if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+		if (WidgetBP != nullptr)
 		{
-			Subsystem->SpawnAndRegisterTab(WidgetBP);
+			if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+			{
+				Subsystem->SpawnAndRegisterTab(WidgetBP);
+			}
 		}
 	}
 }
-
 void FMeshUtilityKitModule::ShutdownModule()
 {
 	UToolMenus::UnRegisterStartupCallback(this);
 }
 
+// ----------------
 // -- CORE LOGIC -- 
+// ----------------
 
+// ---------------------------------------------------------
 // -- RESIZE --
-int32 UMeshUtilityKitFunctionLibrary::ResizeSelectedMeshes_CPP(const TArray<AActor*>& SelectedActors, float TargetSize)
+// Resizes selected static mesh actors to a target size 
+// Applies uniform scale based on largest bounding box axis 
+// Permanently modifies the source asset
+// ---------------------------------------------------------
+
+int32 UMeshUtilityKitFunctionLibrary::ResizeSelectedMeshes_CPP(
+	const TArray<AActor*>& SelectedActors, 
+	float TargetSize)
 {
 	int32 SuccessCount = 0;
-
-	FScopedSlowTask Progress(SelectedActors.Num(), LOCTEXT("ResizingMeshes", "Resizing Meshes..."));
-	Progress.MakeDialog();
-
 	for (AActor* Actor : SelectedActors)
 	{
-		Progress.EnterProgressFrame(1);
 		if (!Actor)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Null actor found, skipping"));
 			continue;
 		}
-
 		AStaticMeshActor* StaticMeshActor = Cast<AStaticMeshActor>(Actor);
 		if (!StaticMeshActor)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Actor %s is not a StaticMeshActor, skipping"), *Actor->GetName());
 			continue;
 		}
-
 		UStaticMeshComponent* MeshComp = StaticMeshActor->GetStaticMeshComponent();
 		if (!MeshComp)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: No StaticMeshComponent found on actor %s"), *Actor->GetName());
 			continue;
 		}
-
 		UStaticMesh* StaticMesh = MeshComp->GetStaticMesh();
 		if (!StaticMesh) continue;
-
-		// Apply uniform scale to viewport instance
+		// -- Calculate scale factor from bounding box -- 
 		FBox MeshBox = MeshComp->CalcBounds(FTransform::Identity).GetBox();
 		float CurrentSize = MeshBox.GetSize().GetMax();
 		if (CurrentSize <= 0.0f)
@@ -159,160 +158,128 @@ int32 UMeshUtilityKitFunctionLibrary::ResizeSelectedMeshes_CPP(const TArray<AAct
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Invalid bounds on actor %s, skipping"), *Actor->GetName());
 			continue;
 		}
-
 		float ScaleFactor = TargetSize / CurrentSize;
 		if (ScaleFactor <= 0.0f)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Invalid scale factor on actor %s, skipping"), *Actor->GetName());
 			continue;
 		}
-
 		Actor->SetActorScale3D(FVector(ScaleFactor, ScaleFactor, ScaleFactor));
-
-		// Mark source asset dirty so change is save permenantly
 		StaticMesh->Modify();
 		StaticMesh->MarkPackageDirty();
-
 		SuccessCount++;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Resize %d meshes"), SuccessCount);
+	UE_LOG(LogTemp, Log, TEXT("MeshUtilityKit: Resize %d meshes"), SuccessCount);
 	return SuccessCount;
 }
 
-// -- RESET TO ORIGIN --
-int32 UMeshUtilityKitFunctionLibrary::ResetAssetToOrigin_CPP(const TArray<AActor*>& SelectedActors, bool bResetRotation)
+// ---------------------------------------------------------
+// -- RESET ASSET TO ORIGIN --
+// Recentres mesh vertex data around world origin 
+// Permanently modifies vertex positions in source asset 
+// Compensates actor position so it srays visually in place 
+// Optionally resets rotation 
+// ---------------------------------------------------------
+
+int32 UMeshUtilityKitFunctionLibrary::ResetAssetToOrigin_CPP(
+	const TArray<AActor*>& SelectedActors, 
+	bool bResetRotation)
 {
 	int32 SuccessCount = 0;
-
-	FScopedSlowTask Progress(SelectedActors.Num(), LOCTEXT("ResettingToOrigin", "Resetting Assets to Origin..."));
-	Progress.MakeDialog();
-
 	for (AActor* Actor : SelectedActors)
 	{
-		Progress.EnterProgressFrame(1);
 		if (!Actor)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Null actor found, skipping"));
 			continue;
 		}
-
 		AStaticMeshActor* StaticMeshActor = Cast<AStaticMeshActor>(Actor);
 		if (!StaticMeshActor)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Actor %s is not a StaticMeshActor, skipping"), *Actor->GetName());
 			continue;
 		}
-
 		UStaticMeshComponent* MeshComp = StaticMeshActor->GetStaticMeshComponent();
 		if (!MeshComp)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: No StaticMeshComponent found on actor %s"), *Actor->GetName());
 			continue;
 		}
-
 		UStaticMesh* StaticMesh = MeshComp->GetStaticMesh();
 		if (!StaticMesh)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: No StaticMesh found on actor %s"), *Actor->GetName());
 			continue;
 		}
-
-		// Get the mesh description for LOD0
 		FMeshDescription* MeshDescription = StaticMesh->GetMeshDescription(0);
 		if (!MeshDescription)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: No MeshDescription found on actor %s"), *Actor->GetName());
 			continue;
 		}
-
-		// Calculate the current bounding box centre in local space 
+		// -- Calculate bounding box centre in local space -- 
 		FBox LocalBox = MeshComp->CalcBounds(FTransform::Identity).GetBox();
 		FVector Centre = LocalBox.GetCenter();
-
-		// If centre is already at origin, skip
 		if (Centre.IsNearlyZero(0.1f))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Actor %s is already at origin, skipping"), *Actor->GetName());
 			continue;
 		}
-
-		// Get vertex positions attribute 
+		// -- Shifts all vertices by negative centre offset --
+		// Recentres mesh data around its own origin permanently 
 		TVertexAttributesRef<FVector3f> VertexPositions =
 			MeshDescription->VertexAttributes().GetAttributesRef<FVector3f>(MeshAttribute::Vertex::Position);
-
-		// Shift every vertex by the negative centre offset
-		// This recentres the mesh data around its own origin permanently 
 		FVector3f Offset = FVector3f(-Centre.X, -Centre.Y, -Centre.Z);
-
 		for (FVertexID VertexID : MeshDescription->Vertices().GetElementIDs())
 		{
 			VertexPositions[VertexID] += Offset;
 		}
-
-		// Commit the modified mesh description back to the asset
 		StaticMesh->Modify();
 		StaticMesh->CommitMeshDescription(0);
-
-		// Rebuild the static mesh so changed take effect
-		StaticMesh->CommitMeshDescription(0);
 		StaticMesh->PostEditChange();
-
-		// Move actor in the viewport to compensate so it stays visually in place 
+		// -- Compensate actor position so it stays visually in place -- 
 		Actor->SetActorLocation(Actor->GetActorLocation() + Centre);
-
-		// Optionally reset rotation
 		if (bResetRotation)
 		{
 			Actor->SetActorRotation(FRotator::ZeroRotator);
 		}
-
-		// Force viewport refresh
 		Actor->ReregisterAllComponents();
 		GEditor->RedrawAllViewports();
-
 		StaticMesh->MarkPackageDirty();
-
-		UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Reset asset %s to origin"), *Actor->GetName());
+		UE_LOG(LogTemp, Log, TEXT("MeshUtilityKit: Reset asset %s to origin"), *Actor->GetName());
 		SuccessCount++;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Reset %d assets to origin"), SuccessCount);
+	UE_LOG(LogTemp, Log, TEXT("MeshUtilityKit: Reset %d assets to origin"), SuccessCount);
 	return SuccessCount;
 }
 
+// ----------------------------------------------------------------
+// -- GENERATE COLLISION ON SELECTED MESHES --
+// Applies chosen collision type to selected static mesh actors 
+// Clears existing collision before applying new type 
+// Supports Box, Sphere, Capsule, SimpleAsComplex, ComplexAsSimple
+// ----------------------------------------------------------------
 
-// -- COLLISION -- 
-int32 UMeshUtilityKitFunctionLibrary::GenerateCollisionOnSelectedMeshes_CPP(const TArray<AActor*>& SelectedActors, EMeshCollisionType CollisionType)
+int32 UMeshUtilityKitFunctionLibrary::GenerateCollisionOnSelectedMeshes_CPP(
+	const TArray<AActor*>& SelectedActors, 
+	EMeshCollisionType CollisionType)
 {
 	int32 SuccessCount = 0;
-
-	FScopedSlowTask Progress(SelectedActors.Num(), LOCTEXT("GeneratingCollision", "Generating Collision..."));
-	Progress.MakeDialog();
-
 	for (AActor* Actor : SelectedActors)
 	{
-		Progress.EnterProgressFrame(1);
 		if (!Actor) continue;
-
 		AStaticMeshActor* StaticMeshActor = Cast<AStaticMeshActor>(Actor);
 		if (!StaticMeshActor) continue;
-
 		UStaticMeshComponent* MeshComp = StaticMeshActor->GetStaticMeshComponent();
 		if (!MeshComp) continue;
-
 		UStaticMesh* StaticMesh = MeshComp->GetStaticMesh();
 		if (!StaticMesh) continue;
-
 		UBodySetup* BodySetup = StaticMesh->GetBodySetup();
 		if (!BodySetup) continue;
-
 		StaticMesh->Modify();
-
-		// Clear existing collision first
+		// -- Clear existing collision before applying new type --
 		BodySetup->Modify();
 		BodySetup->RemoveSimpleCollision();
-
 		if (CollisionType == EMeshCollisionType::SimpleAsComplex)
 		{
 			BodySetup->CollisionTraceFlag = CTF_UseSimpleAsComplex;
@@ -325,7 +292,6 @@ int32 UMeshUtilityKitFunctionLibrary::GenerateCollisionOnSelectedMeshes_CPP(cons
 		{
 			BodySetup->CollisionTraceFlag = CTF_UseDefault;
 			FKAggregateGeom& AggGeom = BodySetup->AggGeom;
-
 			if (CollisionType == EMeshCollisionType::Box)
 			{
 				FKBoxElem BoxElem;
@@ -357,18 +323,14 @@ int32 UMeshUtilityKitFunctionLibrary::GenerateCollisionOnSelectedMeshes_CPP(cons
 				AggGeom.SphylElems.Add(CapsuleElem);
 			}
 		}
-
-		//Rebuild and refresh 
+		// -- Rebuild and refresh --
 		StaticMesh->CreateBodySetup();
 		StaticMesh->PostEditChange();
 		MeshComp->RecreatePhysicsState();
 		StaticMesh->MarkPackageDirty();
-
 		SuccessCount++;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("MeshUtilityKit: Generated collision on %d meshes"), SuccessCount);
+	UE_LOG(LogTemp, Log, TEXT("MeshUtilityKit: Generated collision on %d meshes"), SuccessCount);
 	return SuccessCount;
 }
-
 #undef LOCTEXT_NAMESPACE
