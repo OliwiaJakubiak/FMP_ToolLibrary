@@ -25,7 +25,6 @@ public class AssetOrganiser : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -40,15 +39,17 @@ public class AssetOrganiser : ModuleRules
 				"SlateCore",
 				"Core",
 				"InputCore",
-				"AssetRegistry", // For accessing and scanning asset data
-				"EditorScriptingUtilities", // For editor scripting capabilities (renaming assets, moving assets, etc.)
-				"UnrealEd", // For editor functionalities (asset management, etc.)
-				"Blutility", // For Blueprint utilities
-				"LevelEditor", // For level editor functionalities (required to access the toolbar and menu extensions)
-				"UMG", // For UI development (if you are creating custom UI for your asset organiser)
-				"UMGEditor", // For UMG editor functionalities (if you are creating custom UI for your asset organiser)
-				"ToolMenus", // For creating custom tool menus (if you are adding custom menu entries for your asset organiser)
-				"MainFrame" // For accessing the main frame of the editor (if you are creating custom UI for your asset organiser)	
+				// Menu
+				"UnrealEd",
+				"Blutility",
+				"LevelEditor",
+				"UMG",
+				"UMGEditor",
+				"ToolMenus",
+				"MainFrame",
+				"EditorScriptingUtilities",
+				// Plugin Specific
+				"AssetRegistry"
             }
 			);
 		

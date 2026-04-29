@@ -1,40 +1,39 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AssetOrganiser.h"
-#include "LevelEditor.h" // For menu extension
-#include "EditorUtilityWidgetBlueprint.h" // For launching the editor utility widget
-#include "EditorUtilitySubsystem.h" // For launching the editor utility widget
-#include "EditorAssetLibrary.h" // Requires EditorScriptingUtilities module
+#include "LevelEditor.h" 
+#include "EditorUtilityWidgetBlueprint.h" 
+#include "EditorUtilitySubsystem.h" 
+#include "EditorAssetLibrary.h" 
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "ToolMenus.h" // For menu extension
+#include "ToolMenus.h" 
+#include "Editor.h"
 
 #define LOCTEXT_NAMESPACE "FAssetOrganiserModule" // For logging purposes
-
 IMPLEMENT_MODULE(FAssetOrganiserModule, AssetOrganiser);
+
+// ------------
+// -- MODULE --
+// ------------
 
 void FAssetOrganiserModule::StartupModule()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Oliwia's DevTools: Module started!"));
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FAssetOrganiserModule::RegisterMenus));
 }
-
 void FAssetOrganiserModule::RegisterMenus()
 {
 	if (!UToolMenus::IsToolMenuUIEnabled()) return;
-
 	TArray<FName> MenuTargets = {
 		FName("LevelEditor.MainMenu"),
 		FName("MainFrame.MainMenu")
 	};
-
 	for (const FName& MenuName : MenuTargets)
 	{
 		UToolMenu* MainMenu = UToolMenus::Get()->ExtendMenu(MenuName);
 		if (!MainMenu) continue;
-
 		if (!MainMenu->ContainsSection("OliwiasDevTools"))
 		{
-			// If this plugin is first alphabetically - create menu shell
 			FToolMenuSection& Section = MainMenu->AddSection(
 				"OliwiasDevTools",
 				TAttribute<FText>(),
@@ -50,7 +49,6 @@ void FAssetOrganiserModule::RegisterMenus()
 		}
 		else
 		{
-			// If another plugin already created the menu shell - wrap its delegate so both are called when submenu open
 			FToolMenuSection* ExistingSection = MainMenu->FindSection("OliwiasDevTools");
 			if (!ExistingSection) continue;
 			FToolMenuEntry* ExistingEntry = ExistingSection->FindEntry("OliwiaDevToolsMenu");
@@ -60,9 +58,7 @@ void FAssetOrganiserModule::RegisterMenus()
 			ExistingEntry->SubMenuData.ConstructMenu.NewToolMenu = FNewToolMenuDelegate::CreateLambda(
 				[PreviousDelegate, this](UToolMenu* Menu)
 				{
-					// Call the previous plugin's delegate first (preserves existing entries)
 					if (PreviousDelegate.IsBound()) PreviousDelegate.Execute(Menu);
-					// Then add this plugin's entries
 					FAssetOrganiserModule::FillMenu(Menu);
 				}
 			);
@@ -70,14 +66,9 @@ void FAssetOrganiserModule::RegisterMenus()
 		}
 	}
 }
-
 void FAssetOrganiserModule::FillMenu(UToolMenu* Menu)
 {
-	// --
 	// CATEGORY: "Organisation"
-	// To place this tool under a different category, change the section name and label below 
-	// If anohter tool shares this category use the identical section name and it will group automatically
-	// --
 	if (!Menu->ContainsSection("OliwiaDevTools_Organisation"))
 	{
 		Menu->AddSection(
@@ -97,10 +88,8 @@ void FAssetOrganiserModule::FillMenu(UToolMenu* Menu)
 		);
 		UE_LOG(LogTemp, Warning, TEXT("Oliwia's DevTools: AssetOrganiser entry added"));
 }
-
 void FAssetOrganiserModule::TriggerAssetOrganiser()
 {
-	// Load and launch the editor utility widget
 	FString WidgetPath = TEXT("/AssetOrganiser/UI/EUW_AssetOrganiser.EUW_AssetOrganiser"); // Path to the widget blueprint, change as needed)
 	UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
 	if (WidgetObj)
@@ -116,51 +105,64 @@ void FAssetOrganiserModule::TriggerAssetOrganiser()
 		UE_LOG(LogTemp, Error, TEXT("Oliwia's DevTools: Could not find EUW at %s"), *WidgetPath);
 	}
 }
-
 void FAssetOrganiserModule::ShutdownModule()
 {
-	// Properly unregister all UToolMenus delegates to avoid issues with dangling pointers and ensure clean shutdown
 	UToolMenus::UnRegisterStartupCallback(this);
 }
 
-// -- CORE LOGIC: takes an array of assets and an array of rules, and returns a map of assets to their new paths --
+// ----------------
+// -- CORE LOGIC --
+// ----------------
 
-int32 UAssetOrganiserFunctionLibrary::BatchOrganiseAssets_CPP(const TArray<FAssetData>& SelectedAssets, const TMap<UClass*, FAssetOrganiserRule>& OrganiserRules, bool bIsDryRun)
+// -----------------------------------------------------------------------------------------------------------------------------------------
+// -- BATCH ORGANISE ASSETS -- 
+// Processes selected assets against organiser rules
+// bOrganise - moves assets into correct subfolders 
+// bRename - applies prefix to asset names 
+// Bot hcan be used independently or together 
+// Folder existence is handled by RenameAsset which create folders automatically if they don't exist and places assets in existing folders
+// No duplicate folders ever created 
+// -----------------------------------------------------------------------------------------------------------------------------------------
+
+int32 UAssetOrganiserFunctionLibrary::BatchOrganiseAssets_CPP(
+	const TArray<FAssetData>& SelectedAssets, 
+	const TMap<UClass*, FAssetOrganiserRule>& OrganiserRules, 
+	bool bIsDryRun,
+	bool bOrganise,
+	bool bRename)
 {
 	int32 SuccessCount = 0;
-
 	for (const FAssetData& Asset : SelectedAssets)
 	{
 		UClass* AssetClass = Asset.GetClass();
-
-		// Check if there is a rule for this asset's class
-		if (OrganiserRules.Contains(AssetClass))
+		if (!OrganiserRules.Contains(AssetClass)) continue;
+		const FAssetOrganiserRule& Rule = OrganiserRules[AssetClass];
+		FString CurrentPath = Asset.PackagePath.ToString();
+		FString AssetName = Asset.AssetName.ToString();
+		// -- Build new folder path --
+		// Only append subfolder if bOrganise is true 
+		FString NewFolder = bOrganise
+			? FString::Printf(TEXT("%s/%s"), *CurrentPath, *Rule.FolderName) : CurrentPath;
+		// -- Build new asset name --
+		// Only apply prefix if bRename is true and prefix not already applied
+		FString NewName = bRename && !AssetName.StartsWith(Rule.Prefix)
+			? Rule.Prefix + AssetName : AssetName;
+		FString NewPath = NewFolder / NewName;
+		if (bIsDryRun)
 		{
-			const FAssetOrganiserRule& Rule = OrganiserRules[AssetClass];
-
-			// Build the new path for the asset: {Folder}/{Sub}/{Prefix}_{Name}
-			FString OldPath = Asset.PackagePath.ToString();
-			FString NewPath = FString::Printf(TEXT("%s/%s/%s%s"),
-				*OldPath,
-				*Rule.FolderName,
-				*Rule.Prefix,
-				*Asset.AssetName.ToString());
-
-			if (bIsDryRun)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("DRY RUN: Moving asset '%s' to '%s'"), *Asset.GetFullName(), *NewPath);
-				continue;
-			}
-
-			// Perform actual move and rename
-			if (UEditorAssetLibrary::RenameAsset(Asset.PackageName.ToString(), NewPath))
-			{
-				SuccessCount++;
-			}
+			UE_LOG(LogTemp, Warning, TEXT("DRY RUN: '%s' -> '%s'"),
+				*Asset.PackageName.ToString(), *NewPath);
+			continue;
+		}
+		// -- RenameAsset handles folder creation automatically --
+		// Creates folder if it doesn't exist 
+		// Places asset in existing folder if it does 
+		// No duplicate folders created 
+		if (UEditorAssetLibrary::RenameAsset(Asset.PackageName.ToString(), NewPath))
+		{
+			SuccessCount++;
 		}
 	}
-
 	return SuccessCount;
 }
-
 #undef LOCTEXT_NAMESPACE
