@@ -25,7 +25,6 @@ public class QuickLightingKit : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -35,19 +34,20 @@ public class QuickLightingKit : ModuleRules
 			new string[]
 			{
 				"CoreUObject",
-				"Engine", // Essential for lights and fog actors
+				"Engine",
 				"Slate",
 				"SlateCore",
 				"Core",
-                "InputCore", // For input handling
-				"EditorScriptingUtilities", // For editor scripting capabilities (renaming assets, moving assets, etc.)
-				"UnrealEd", // For editor functionalities (asset management, etc.)
+                "InputCore",
+				// Menu
+				"UnrealEd",
+				"Blutility",
 				"LevelEditor",
-				"ToolMenus",
-				"MainFrame",
 				"UMG",
 				"UMGEditor",
-				"Blutility"
+				"ToolMenus",
+				"MainFrame",
+				"EditorScriptingUtilities"
 			}
 			);
 		

@@ -1,22 +1,25 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "QuickLightingKit.h" // For the function definitions
-#include "EngineUtils.h" // For iterating over actors in the world
-#include "Engine/DirectionalLight.h" // For ADirectionalLight
-#include "Engine/SkyLight.h" // For ASkyLight
-#include "Components/LightComponent.h" // For ULightComponent
-#include "Components/SkyLightComponent.h" // For USkyLightComponent
-#include "Engine/ExponentialHeightFog.h" // For AExponentialHeightFog
-#include "Components/ExponentialHeightFogComponent.h" // For UExponentialHeightFogComponent
+#include "QuickLightingKit.h" 
+#include "EngineUtils.h" 
+#include "Engine/DirectionalLight.h" 
+#include "Engine/SkyLight.h" 
+#include "Components/LightComponent.h" 
+#include "Components/SkyLightComponent.h" 
+#include "Engine/ExponentialHeightFog.h" 
+#include "Components/ExponentialHeightFogComponent.h" 
 #include "LevelEditor.h"
 #include "ToolMenus.h"
 #include "EditorUtilityWidgetBlueprint.h"
 #include "EditorUtilitySubsystem.h"
+#include "Editor.h"
 
 #define LOCTEXT_NAMESPACE "FQuickLightingKitModule"
+IMPLEMENT_MODULE(FQuickLightingKitModule, QuickLightingKit)
 
-IMPLEMENT_MODULE(FQuickLightingKitModule, QuickLightingKit);
-
+// ------------
+// -- MODULE --
+// ------------
 void FQuickLightingKitModule::StartupModule()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Oliwia's DevTools: QuickLightingKit module started"));
@@ -24,7 +27,6 @@ void FQuickLightingKitModule::StartupModule()
 		FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FQuickLightingKitModule::RegisterMenus)
 	);
 }
-
 void FQuickLightingKitModule::RegisterMenus()
 {
 	if (!UToolMenus::IsToolMenuUIEnabled()) return;
@@ -33,15 +35,13 @@ void FQuickLightingKitModule::RegisterMenus()
 		FName("LevelEditor.MainMenu"),
 		FName("MainFrame.MainMenu")
 	};
-
 	for (const FName& MenuName : MenuTargets)
 	{
-		UToolMenu* MainMenu = UToolMenus::Get() ->ExtendMenu(MenuName);
+		UToolMenu* MainMenu = UToolMenus::Get()->ExtendMenu(MenuName);
 		if (!MainMenu) continue;
 
 		if (!MainMenu->ContainsSection("OliwiasDevTools"))
 		{
-			// If plugin is first alphabetically - create menu shell
 			FToolMenuSection& Section = MainMenu->AddSection(
 				"OliwiasDevTools",
 				TAttribute<FText>(),
@@ -57,7 +57,6 @@ void FQuickLightingKitModule::RegisterMenus()
 		}
 		else
 		{
-			// If another plugin already created menu shell - wrap its delegate so both called when submenu open
 			FToolMenuSection* ExistingSection = MainMenu->FindSection("OliwiasDevTools");
 			if (!ExistingSection) continue;
 			FToolMenuEntry* ExistingEntry = ExistingSection->FindEntry("OliwiaDevToolsMenu");
@@ -67,9 +66,7 @@ void FQuickLightingKitModule::RegisterMenus()
 			ExistingEntry->SubMenuData.ConstructMenu.NewToolMenu = FNewToolMenuDelegate::CreateLambda(
 				[PreviousDelegate, this](UToolMenu* Menu)
 				{
-					// Call previous plugin's delegate first (preserves existing entries)
 					if (PreviousDelegate.IsBound()) PreviousDelegate.Execute(Menu);
-					// Then add this plugins entries
 					FQuickLightingKitModule::FillMenu(Menu);
 				}
 			);
@@ -80,11 +77,7 @@ void FQuickLightingKitModule::RegisterMenus()
 
 void FQuickLightingKitModule::FillMenu(UToolMenu* Menu)
 {
-	// --
 	// CATEGORY: "Environment"
-	// To place this tool under a different category, change the section name and label below 
-	// If another tool shares this category use the identical section name and it will group automatically
-	// --
 	if (!Menu->ContainsSection("OliwiaDevTools_Environment"))
 	{
 		Menu->AddSection(
@@ -104,39 +97,50 @@ void FQuickLightingKitModule::FillMenu(UToolMenu* Menu)
 	);
 	UE_LOG(LogTemp, Warning, TEXT("Oliwia's DevTools: QuickLightingKit entry added"));
 }
-
 void FQuickLightingKitModule::TriggerQuickLightingKit()
 {
 	FString WidgetPath = TEXT("/QuickLightingKit/UI/EUW_LightingKit.EUW_LightingKit");
 	UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
-	if (WidgetObj)
+	if (WidgetObj != nullptr)
 	{
 		UEditorUtilityWidgetBlueprint* WidgetBP = Cast<UEditorUtilityWidgetBlueprint>(WidgetObj);
-		if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+		if (WidgetBP != nullptr)
 		{
-			Subsystem->SpawnAndRegisterTab(WidgetBP);
+			if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+			{
+				Subsystem->SpawnAndRegisterTab(WidgetBP);
+			}
 		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Oliwia's DevTools: Could not find EUW at %s"), *WidgetPath);
-	}
 }
-
 void FQuickLightingKitModule::ShutdownModule()
 {
 	UToolMenus::UnRegisterStartupCallback(this);
 }
 
+// ----------------
 // -- CORE LOGIC -- 
+// ----------------
 
-void UQuickLightingKit::ExecuteLightingUpdate(const UObject* WorldContextObject, float SunPitch, FLinearColor SunColor, float SunIntensity, float SkyIntensity, float FogDensity)
+// ----------------------------------------------------------------------------------------
+// -- EXECUTE LIGHTING UPDATE --
+// Finds all Directional lights, sky lights and exponential height fog actors in the level
+// Updates their properties with the provided values
+// Also exposed to blueprint for custom presets 
+// ----------------------------------------------------------------------------------------
+
+void UQuickLightingKit::ExecuteLightingUpdate(
+	const UObject* WorldContextObject, 
+	float SunPitch, 
+	FLinearColor SunColor, 
+	float SunIntensity, 
+	float SkyIntensity, 
+	float FogDensity)
 {
 	if (!WorldContextObject) return;
 	UWorld* World = WorldContextObject->GetWorld();
 	if (!World) return;
-
-	// Loop through all directional lights in the world and update their properties
+	// -- Update all Directional lights -- 
 	for (TActorIterator<ADirectionalLight> It(World); It; ++It)
 	{
 		It->SetActorRotation(FRotator(SunPitch, 0.0f, 0.0f));
@@ -146,18 +150,16 @@ void UQuickLightingKit::ExecuteLightingUpdate(const UObject* WorldContextObject,
 			LightComp->SetIntensity(SunIntensity);
 		}
 	}
-
-	// Loop through all sky lights in the world and update their properties
+	// -- Update all Sky lights -- 
 	for (TActorIterator<ASkyLight> It(World); It; ++It)
 	{
 		if (USkyLightComponent* SkyComp = It->GetComponentByClass<USkyLightComponent>())
 		{
 			SkyComp->SetIntensity(SkyIntensity);
-			SkyComp->RecaptureSky(); // Important to update the sky light after changing intensity
+			SkyComp->RecaptureSky(); 
 		}
 	}
-
-	// Loop through all exponential height fog actors in the world and update their properties
+	// -- Update all Exponential height fog actors -- 
 	for (TActorIterator<AExponentialHeightFog> It(World); It; ++It)
 	{
 		if (UExponentialHeightFogComponent* FogComp = It->GetComponentByClass<UExponentialHeightFogComponent>())
@@ -166,5 +168,4 @@ void UQuickLightingKit::ExecuteLightingUpdate(const UObject* WorldContextObject,
 		}
 	}
 }
-
 #undef LOCTEXT_NAMESPACE

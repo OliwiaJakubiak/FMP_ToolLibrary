@@ -9,8 +9,8 @@
 #include "ToolMenus.h" 
 #include "Editor.h"
 
-#define LOCTEXT_NAMESPACE "FAssetOrganiserModule" // For logging purposes
-IMPLEMENT_MODULE(FAssetOrganiserModule, AssetOrganiser);
+#define LOCTEXT_NAMESPACE "FAssetOrganiserModule"
+IMPLEMENT_MODULE(FAssetOrganiserModule, AssetOrganiser)
 
 // ------------
 // -- MODULE --
