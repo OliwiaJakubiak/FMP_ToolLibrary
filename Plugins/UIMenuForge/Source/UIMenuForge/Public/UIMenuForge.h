@@ -53,9 +53,12 @@ private:
 	void UpdateInputMode();
 };
 
-// -------------------------
+// ----------------------------------------------------------------
 // -- BASE WIDGET CLASSES --
-// -------------------------
+// All marked abstract - prevents direct instantation 
+// User creates blueprint children form these base classes 
+// Templates in Content/UI/Screens/Templates/ use these as parents 
+// ----------------------------------------------------------------
 
 UCLASS(Abstract)
 class UIMENUFORGE_API UUIMenuForge_MainMenu : public UUserWidget
@@ -167,7 +170,6 @@ class UIMENUFORGE_API UUIMenuForge_CustomScreen : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 };
-
 
 // ------------
 // -- MODULE --

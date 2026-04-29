@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "CharacterKickstarter",
-	"Description": "Generate a production-ready character template with pre-configured movement, camera and game mode setup",
+	"Description": "Generate a fully configured, play-ready character Blueprint with movement, camera and input pre-wired.",
 	"Category": "Other",
 	"CreatedBy": "Oliwia Jakubiak",
 	"CreatedByURL": "",

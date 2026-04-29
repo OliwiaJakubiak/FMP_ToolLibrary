@@ -97,12 +97,15 @@ void FCharacterKickstarterModule::TriggerCharacterKickstarter()
 {
 	FString WidgetPath = TEXT("/CharacterKickstarter/UI/EUW_CharacterKickstarter.EUW_CharacterKickstarter");
 	UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
-	if (WidgetObj)
+	if (WidgetObj != nullptr)
 	{
 		UEditorUtilityWidgetBlueprint* WidgetBP = Cast<UEditorUtilityWidgetBlueprint>(WidgetObj);
-		if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+		if (WidgetBP != nullptr)
 		{
-			Subsystem->SpawnAndRegisterTab(WidgetBP);
+			if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+			{
+				Subsystem->SpawnAndRegisterTab(WidgetBP);
+			}
 		}
 	}
 }
@@ -124,7 +127,7 @@ void FCharacterKickstarterModule::ShutdownModule()
 AKickstarterCharacterBase::AKickstarterCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	// -- SPRNG ARM --
+	// -- SPRING ARM --
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f;
@@ -288,7 +291,7 @@ bool UCharacterKickstarterLibrary::GeneratePlayerController(
 // -- GENERATE AND SET GAME MODE --
 // Creates a Game Mode blueprint in the output folder
 // Autosets it in world settings so it takes effect immediately 
-// Character and controller paths wired into game mdoe defaults
+// Character and controller paths wired into game mode defaults
 // -------------------------------------------------------------
 
 bool UCharacterKickstarterLibrary::GenerateAndSetGameMode(

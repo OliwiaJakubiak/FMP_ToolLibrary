@@ -16,12 +16,9 @@
 #include "Materials/MaterialExpressionScalarParameter.h"
 #include "MaterialEditingLibrary.h"
 #include "Engine/Texture2D.h"
-#include "StaticMeshAttributes.h"
 #include "Engine/StaticMesh.h"
 #include "AssetRegistry/AssetData.h"
 #include "UObject/SavePackage.h"
-#include "PackageTools.h"
-#include "ObjectTools.h"
 #include "Misc/PackageName.h"
 
 #define LOCTEXT_NAMESPACE "FAutoMaterialSetupModule"
@@ -107,12 +104,15 @@ void FAutoMaterialSetupModule::TriggerAutoMaterialSetup()
 {
     FString WidgetPath = TEXT("/AutoMaterialSetup/UI/EUW_AutoMaterialSetup.EUW_AutoMaterialSetup");
     UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
-    if (WidgetObj)
+    if (WidgetObj != nullptr)
     {
         UEditorUtilityWidgetBlueprint* WidgetBP = Cast<UEditorUtilityWidgetBlueprint>(WidgetObj);
-        if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+        if (WidgetBP != nullptr)
         {
-            Subsystem->SpawnAndRegisterTab(WidgetBP);
+            if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+            {
+                Subsystem->SpawnAndRegisterTab(WidgetBP);
+            }
         }
     }
 }
@@ -208,7 +208,6 @@ FAutoMaterialTextureSet UAutoMaterialSetupLibrary::ScanFolderForTextures(
 	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
 	TArray<FAssetData> AssetList;
 	AssetRegistry.GetAssetsByPath(FName(*FolderPath), AssetList, true);
-    UE_LOG(LogTemp, Warning, TEXT("AutoMaterialSetup: Found %d assets in path %s"), AssetList.Num(), *FolderPath);
     for (const FAssetData& Asset : AssetList)
     {
         if (Asset.AssetClassPath != FTopLevelAssetPath(TEXT("/Script/Engine"), TEXT("Texture2D"))) continue;
@@ -252,7 +251,7 @@ UMaterial* UAutoMaterialSetupLibrary::GeneratePBRMaterial(
     {
         FinalOutputPath.RemoveFromEnd(TEXT("/"));
 	}
-	// Ensue path starts with /Game/ if it doesn't start with /
+	// Ensure path starts with /Game/ if it doesn't start with /
     if (!FinalOutputPath.StartsWith(TEXT("/")))
     {
         FinalOutputPath = TEXT("/Game/") + FinalOutputPath;
@@ -264,7 +263,7 @@ UMaterial* UAutoMaterialSetupLibrary::GeneratePBRMaterial(
     // -- Create material asset --
     UMaterial* NewMaterial = NewObject<UMaterial>(Package, *MaterialName, RF_Public | RF_Standalone);
     if (!NewMaterial) return nullptr;
-    // -- UV Tilling scalar parameter --
+    // -- UV Tiling scalar parameter --
     UMaterialExpressionScalarParameter* UVTiling = Cast<UMaterialExpressionScalarParameter>(UMaterialEditingLibrary::CreateMaterialExpression(NewMaterial, UMaterialExpressionScalarParameter::StaticClass()));
     UVTiling->ParameterName = FName("UV Tiling");
     UVTiling->DefaultValue = 1.0f;
@@ -297,7 +296,7 @@ UMaterial* UAutoMaterialSetupLibrary::GeneratePBRMaterial(
                 Texture->UpdateResource();
                 TexSample->SamplerType = SAMPLERTYPE_LinearColor;
             }
-            // Wire TexCoor into UV input 
+            // Wire TexCoord into UV input 
             TexSample->Coordinates.Expression = TexCoord;
             return TexSample;
         };
@@ -364,7 +363,6 @@ UMaterial* UAutoMaterialSetupLibrary::GeneratePBRMaterial(
         TargetMesh->SetMaterial(0, NewMaterial);
         TargetMesh->MarkPackageDirty();
     }
-    UE_LOG(LogTemp, Log, TEXT("AutoMaterialSetup: Material '%s' created at '%s'"), *MaterialName, *FinalOutputPath);
     return NewMaterial;
 }
 

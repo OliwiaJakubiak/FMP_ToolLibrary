@@ -12,6 +12,8 @@
 
 // ----------------------
 // -- FUNCTION LIBRARY --
+// Core swap logic callable directly from EUW button OnClicked events
+// All functions return output parameters for UI state updates 
 // ----------------------
 
 UCLASS()
@@ -19,7 +21,7 @@ class BLOCKOUTTOBEAUTYSWAPPER_API UBlockoutSwapperLibrary : public UBlueprintFun
 {
 	GENERATED_BODY()
 public:
-	// Returns first seleced actor in level viewport 
+	// Returns first selected actor in level viewport 
 	// Returns nullptr if no actor is selected
 	// Called directly from BTN_Refresh OnClicked
 	UFUNCTION(BlueprintCallable, Category = "BlockoutToBeautySwapper")
@@ -30,7 +32,7 @@ public:
 		FString& OutReplacementMeshName
 	);
 	// Swaps Static Mesh on a single actor 
-	// Preserves trasnsform - position, rotation and scale
+	// Preserves transform - position, rotation and scale
 	// Returns original mesh so it can be stored for undo
 	// Called directly from BTN_Swap OnClicked
 	UFUNCTION(BlueprintCallable, Category = "BlockoutToBeautySwapper")

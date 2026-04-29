@@ -11,8 +11,6 @@
 #include "Misc/DateTime.h"
 #include "HAL/FileManager.h"
 #include "Json.h"
-#include "JsonUtilities.h"
-#include "Interfaces/IPluginManager.h"
 
 #define LOCTEXT_NAMESPACE "FInEngineDocGeneratorModule"
 IMPLEMENT_MODULE(FInEngineDocGeneratorModule, InEngineDocGenerator)
@@ -113,7 +111,7 @@ void FInEngineDocGeneratorModule::TriggerDocGenerator()
 void FInEngineDocGeneratorModule::ShutdownModule()
 {
 	UToolMenus::UnRegisterStartupCallback(this);
-	// -- Auto log session end -
+	// -- Auto log session end --
 	if (FPaths::FileExists(UDocGeneratorLibrary::GetJournalFilePath()))
 	{
 		UDocGeneratorLibrary::LogSessionEvent(TEXT("Session Ended"));
@@ -126,7 +124,7 @@ void FInEngineDocGeneratorModule::ShutdownModule()
 
 // --------------------------------------------
 // -- GET JOURNAL FILE PATH --
-// Returns full path to jouranl JSON file 
+// Returns full path to journal JSON file 
 // Saved in project Saved/DevJournal/ folder 
 // Not in Content/ so it doesn't affect builds 
 // or appear in content browser
@@ -159,7 +157,7 @@ FString UDocGeneratorLibrary::GetCurrentTimestamp()
 // --------------------------------------------------------------------------------
 // -- GET FORMATTED LOG DISPLAY --
 // Loads all entries and formats them as a single display string for TB_LogDisplay
-// Called directly form Event Construct
+// Called directly from Event Construct
 // --------------------------------------------------------------------------------
 
 FString UDocGeneratorLibrary::GetFormattedLogDisplay()
@@ -168,7 +166,7 @@ FString UDocGeneratorLibrary::GetFormattedLogDisplay()
 	FString DisplayText;
 	for (const FJournalEntry& Entry : Entries)
 	{
-		DisplayText += FString::Printf(TEXT("[%s} %s - %s\n"),
+		DisplayText += FString::Printf(TEXT("[%s] %s - %s\n"),
 			*Entry.Category,
 			*Entry.Timestamp,
 			*Entry.Note
@@ -324,7 +322,7 @@ bool UDocGeneratorLibrary::ExportTXT(
 	Output += TEXT("----------------------------------------\n\n");
 	for (const FJournalEntry& Entry : Entries)
 	{
-		Output += FString::Printf(TEXT("[%s] %s = %s\n"),
+		Output += FString::Printf(TEXT("[%s] %s - %s\n"),
 			*Entry.Category,
 			*Entry.Timestamp,
 			*Entry.Note
@@ -364,7 +362,7 @@ bool UDocGeneratorLibrary::ExportCSV(
 		);
 	}
 	FString ExportPath = FPaths::ProjectSavedDir() / TEXT("DevJournal") / TEXT("DevJournal_Export.csv");
-	if (FFileHelper::SaveStringToFile(Output, *ExportPath))
+	if (!FFileHelper::SaveStringToFile(Output, *ExportPath))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("DocGenerator: Failed to export CSV"));
 		return false;

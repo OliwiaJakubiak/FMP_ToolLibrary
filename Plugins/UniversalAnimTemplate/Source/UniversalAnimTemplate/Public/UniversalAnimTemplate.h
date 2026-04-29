@@ -11,8 +11,8 @@
 // -----------------------------------------------------
 // -- ANIM STATE FLAGS STRUCT --
 // Passed from EUW to c++ generation function 
-// Each bool represents a state the user wants incldued 
-// Clean single parameter instead of 9 seperate tools
+// Each bool represents a state the user wants included
+// Clean single parameter instead of 9 seperate bools
 // -----------------------------------------------------
 
 USTRUCT(BlueprintType)
@@ -27,22 +27,22 @@ struct FAnimStateSelection
 	bool bRun = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Locomotion")
 	bool bSprint = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Locomotion")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Action")
 	bool bJump = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Locomotion")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Action")
 	bool bFall = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Locomotion")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Action")
 	bool bLand = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Locomotion")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Action")
 	bool bCrouch = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Locomotion")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UniversalAnimTemplate|Action")
 	bool bDeath = false;
 };
 
 // --------------------------------------------------------
 // -- FUNCTION LIBRARY -- 
 // AnimBP generation logic called directly from EUW button 
-// Attempts programmatic state machine generatiuon via 
+// Attempts programmatic state machine generation via 
 // UAnimBlueprint and UAnimStateMachineGraph APIs
 // --------------------------------------------------------
 
@@ -52,7 +52,7 @@ class UNIVERSALANIMTEMPLATE_API UUniversalAnimTemplateLibrary : public UBlueprin
 	GENERATED_BODY()
 public:
 	// Generates a new AnimBP with only the selected states 
-	// wried into a single state machine 
+	// wired into a single state machine 
 	// OutputPath - user defined or defaults to /Game/Animation/
 	// AnimBPName - name for the generated AnimBP asset
 	// StateSelection - which states to include 

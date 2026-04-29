@@ -14,8 +14,6 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Misc/PackageName.h"
 #include "UObject/SavePackage.h"
-#include "EdGraph/EdGraph.h"
-#include "EdGraph/EdGraphNode.h"
 #include "Animation/Skeleton.h"
 #include "EdGraphSchema_K2.h"
 
@@ -97,12 +95,15 @@ void FUniversalAnimTemplateModule::TriggerUniversalAnimTemplate()
 {
 	FString WidgetPath = TEXT("/UniversalAnimTemplate/UI/EUW_UniversalAnimTemplate.EUW_UniversalAnimTemplate");
 	UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
-	if (WidgetObj)
+	if (WidgetObj != nullptr)
 	{
 		UEditorUtilityWidgetBlueprint* WidgetBP = Cast<UEditorUtilityWidgetBlueprint>(WidgetObj);
-		if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+		if (WidgetBP != nullptr)
 		{
-			Subsystem->SpawnAndRegisterTab(WidgetBP);
+			if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+			{
+				Subsystem->SpawnAndRegisterTab(WidgetBP);
+			}
 		}
 	}
 }
@@ -144,7 +145,7 @@ bool UUniversalAnimTemplateLibrary::GenerateAnimBP(
 	}
 	// -- Create AnimBlueprint using FKismetEditorUtilities --
 	// UAnimInstance - parent class for AnimBPs 
-	// Same pattern UE uses interanlly for its own AnimBP creation
+	// Same pattern UE uses internally for its own AnimBP creation
 	UAnimBlueprint* NewAnimBP = Cast<UAnimBlueprint>(
 		FKismetEditorUtilities::CreateBlueprint(
 			UAnimInstance::StaticClass(),

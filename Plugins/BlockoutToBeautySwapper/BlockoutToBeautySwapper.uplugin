@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "BlockoutToBeautySwapper",
-	"Description": "General purpose in-level asset swapper",
+	"Description": "Swap any level asset for a replacement mesh while preserving transform. One click, all instances or selected only.",
 	"Category": "Other",
 	"CreatedBy": "Oliwia Jakubiak",
 	"CreatedByURL": "",

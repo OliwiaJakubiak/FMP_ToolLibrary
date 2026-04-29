@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "UIMenuForge",
-	"Description": "Modular UI generator. Generate pre-wried screen templates and a UI Manager",
+	"Description": "Generate pre-wired, production-ready UI screen templates with a central manager. Ready to style and ship.",
 	"Category": "Other",
 	"CreatedBy": "Oliwia Jakubiak",
 	"CreatedByURL": "",

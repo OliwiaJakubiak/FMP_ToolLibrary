@@ -22,21 +22,21 @@ USTRUCT(BlueprintType)
 struct FAutoMaterialTextureSet
 {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Auto Material Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMaterialSetup")
 	UTexture2D* BaseColor = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Auto Material Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMaterialSetup")
 	UTexture2D* Normal = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Auto Material Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMaterialSetup")
 	UTexture2D* Roughness = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Auto Material Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMaterialSetup")
 	UTexture2D* Metallic = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Auto Material Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMaterialSetup")
 	UTexture2D* AO = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Auto Material Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMaterialSetup")
 	UTexture2D* Emissive = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Auto Material Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMaterialSetup")
 	UTexture2D* Opacity = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Auto Material Setup")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMaterialSetup")
 	UTexture2D* Height = nullptr;
 };
 
@@ -51,10 +51,10 @@ class AUTOMATERIALSETUP_API UAutoMaterialSetupLibrary : public UBlueprintFunctio
 	GENERATED_BODY()
 public:
 	// Accepts raw FAssetData array directly from Blueprints Get Selected Assets node
-	// HAndles both folder and file selection, returns a struct with all detected textures
+	// Handles both folder and file selection, returns a struct with all detected textures
 	// Derives folder path from Texture2D PackagePath 
 	// Returns mesh if found in selection, otherwise nullptr
-	UFUNCTION(BlueprintCallable, Category = "Auto Material Setup")
+	UFUNCTION(BlueprintCallable, Category = "AutoMaterialSetup")
 	static void ResolveSelectionData(
 		const TArray<FAssetData>& SelectedAssets,
 		FString& OutFolderPath,
@@ -63,7 +63,7 @@ public:
 		);
 	// Scans a content browser folder and matches textures to PBR slots
 	// checks if asset names contain the provided suffix string
-	UFUNCTION(BlueprintCallable, Category = "Auto Material Setup")
+	UFUNCTION(BlueprintCallable, Category = "AutoMaterialSetup")
 	static FAutoMaterialTextureSet ScanFolderForTextures(
 		const FString& FolderPath,
 		const FString& BaseColorSuffix,
@@ -78,7 +78,7 @@ public:
 	// Creates a full PBR material with correctly configured nodes
 	// Saves to OutputPath, assigns to TargetMesh if provided
 	// Returns the created material or nullptr on failure
-	UFUNCTION(BlueprintCallable, Category = "Auto Material Setup")
+	UFUNCTION(BlueprintCallable, Category = "AutoMaterialSetup")
 	static UMaterial* GeneratePBRMaterial(
 		const FAutoMaterialTextureSet& TextureSet,
 		const FString& MaterialName,

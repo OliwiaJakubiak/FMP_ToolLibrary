@@ -119,7 +119,7 @@ class GAMEFEELKIT_API UDA_GameFeel_TimeDilation : public UPrimaryDataAsset
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameFeel|TimeDilation")
-	float  DilationAmount = 0.2f;
+	float DilationAmount = 0.2f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameFeel|TimeDilation")
 	float Duration = 0.1f;
@@ -220,7 +220,6 @@ private:
 
 	FVector  OriginalScale;
 
-
 	FTimerHandle ScalePulseTimerHandle;
 	FTimerHandle TimeDilationTimerHandle;
 	FTimerHandle ChromaticAberrationTimerHandle;
@@ -251,7 +250,7 @@ enum class EGameFeelEffectType : uint8
 
 // -------------------------------------------------------------------
 // -- PREVIEW FUNCTION LIBRARY --
-// Editor-only preview functions called by the EUW preview  tab
+// Editor-only preview functions called by the EUW preview tab
 // Screenshake and TimeDilation require PIE - all other work in editor 
 // -------------------------------------------------------------------
 

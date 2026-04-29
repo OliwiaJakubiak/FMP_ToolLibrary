@@ -11,7 +11,7 @@
 // ------------------------------------------------
 // -- JOURNAL ENTRY STRUCT --
 // Represents a single log entry in the dev journal 
-// Stores as JSON, displayed in the EUW scroll  box 
+// Stored as JSON, displayed in the EUW scroll box 
 // ------------------------------------------------
 
 USTRUCT(BlueprintType)
@@ -41,7 +41,7 @@ class INENGINEDOCGENERATOR_API UDocGeneratorLibrary : public UBlueprintFunctionL
 	GENERATED_BODY()
 public: 
 	// Adds a new entry to the journal and saves to disk 
-	// Called directly form BTN_AddEntry OnClicked 
+	// Called directly from BTN_AddEntry OnClicked 
 	UFUNCTION(BlueprintCallable, Category = "DocGenerator")
 	static FJournalEntry AddEntry(
 		const FString& Category,

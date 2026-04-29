@@ -85,7 +85,7 @@ class CHARACTERKICKSTARTER_API UCharacterKickstarterLibrary : public UBlueprintF
 {
 	GENERATED_BODY()
 public:
-	// Duplicates chosen character templare into users output folder 
+	// Duplicates chosen character template into users output folder 
 	// TemplatePath - path to template inside plugin /Content/Templates/
 	// OutputPath - user defined or defaults to /Game/Characters/
 	// CharacterName - name for generated Blueprint

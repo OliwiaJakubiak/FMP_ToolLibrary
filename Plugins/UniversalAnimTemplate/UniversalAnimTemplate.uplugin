@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "UniversalAnimTemplate",
-	"Description": "Generate a custom Animation Blueprint with states you need, fully wired and ready to use",
+	"Description": "Generate a custom Animation Blueprint with the exact states you need, skeleton assigned and variables ready.",
 	"Category": "Other",
 	"CreatedBy": "Oliwia Jakubiak",
 	"CreatedByURL": "",

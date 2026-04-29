@@ -25,7 +25,6 @@ public class UIMenuForge : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -50,9 +49,7 @@ public class UIMenuForge : ModuleRules
 				"MainFrame",
 				"EditorScriptingUtilities",
 				// Plugin Specific
-				"Kismet",
-				"AssetTools",
-				"AssetRegistry"
+				"Kismet"
 			}
 			);
 		

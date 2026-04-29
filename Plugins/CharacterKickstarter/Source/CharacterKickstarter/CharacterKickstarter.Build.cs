@@ -25,7 +25,6 @@ public class CharacterKickstarter : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -52,8 +51,7 @@ public class CharacterKickstarter : ModuleRules
 				// Plugin Specific
 				"Kismet",
 				"AssetTools",
-				"AssetRegistry",
-				"GameplayTasks"
+				"AssetRegistry"
             }
 			);
 		

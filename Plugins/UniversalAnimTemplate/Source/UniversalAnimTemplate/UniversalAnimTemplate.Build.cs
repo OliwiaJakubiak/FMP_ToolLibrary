@@ -25,7 +25,6 @@ public class UniversalAnimTemplate : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -51,8 +50,6 @@ public class UniversalAnimTemplate : ModuleRules
 				"EditorScriptingUtilities",
 				// Plugin Specific
 				"Kismet",
-				"AssetTools",
-				"AssetRegistry",
 				// AnimBP generation
 				"AnimGraph",
 				"AnimGraphRuntime",

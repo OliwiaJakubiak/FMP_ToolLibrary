@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "MeshUtilityKit",
-	"Description": "A suite of mesh utilities for resizing, pivot fixing and collision generation",
+	"Description": "One-click mesh utilities for resizing, origin resetting and collision generation on static mesh actors.",
 	"Category": "Other",
 	"CreatedBy": "Oliwia Jakubiak",
 	"CreatedByURL": "",

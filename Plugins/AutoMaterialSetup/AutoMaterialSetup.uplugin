@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "AutoMaterialSetup",
-	"Description": "Automatically create a PBR material and assign to selected mesh",
+	"Description": "Automatically detect, wire and assign a full PBR material from a texture folder in a single click.",
 	"Category": "Other",
 	"CreatedBy": "Oliwia Jakubiak",
 	"CreatedByURL": "",

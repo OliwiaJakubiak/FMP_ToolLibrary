@@ -100,12 +100,15 @@ void FUIMenuForgeModule::TriggerUIMenuForge()
 {
     FString WidgetPath = TEXT("/UIMenuForge/UI/EUW/EUW_UIMenuForge.EUW_UIMenuForge");
     UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
-    if (WidgetObj)
+    if (WidgetObj != nullptr)
     {
         UEditorUtilityWidgetBlueprint* WidgetBP = Cast<UEditorUtilityWidgetBlueprint>(WidgetObj);
-        if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+        if (WidgetBP != nullptr)
         {
-            Subsystem->SpawnAndRegisterTab(WidgetBP);
+            if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+            {
+                Subsystem->SpawnAndRegisterTab(WidgetBP);
+            }
         }
     }
 }

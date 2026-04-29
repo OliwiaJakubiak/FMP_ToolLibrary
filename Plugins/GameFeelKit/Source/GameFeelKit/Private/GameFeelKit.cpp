@@ -21,7 +21,6 @@
 
 IMPLEMENT_MODULE(FGameFeelKitModule, GameFeelKit)
 
-// Static BGM tracker 
 UAudioComponent* UGameFeelPreviewLibrary::ActivePreviewBGM = nullptr;
 
 // ------------
@@ -107,12 +106,15 @@ void FGameFeelKitModule::TriggerGameFeelKit()
 {
 	FString WidgetPath = TEXT("/GameFeelKit/UI/EUW_GameFeelKit.EUW_GameFeelKit");
 	UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
-	if (WidgetObj)
+	if (WidgetObj != nullptr)
 	{
 		UEditorUtilityWidgetBlueprint* WidgetBP = Cast<UEditorUtilityWidgetBlueprint>(WidgetObj);
-		if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+		if (WidgetBP != nullptr)
 		{
-			Subsystem->SpawnAndRegisterTab(WidgetBP);
+			if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+			{
+				Subsystem->SpawnAndRegisterTab(WidgetBP);
+			}
 		}
 	}
 }
@@ -321,7 +323,7 @@ void UGameFeelComponent::TriggerScalePulse()
 	);
 }
 
-void  UGameFeelComponent::RestoreScale()
+void UGameFeelComponent::RestoreScale()
 {
 	if (!ScalePulseData) return;
 
@@ -493,7 +495,7 @@ void UGameFeelPreviewLibrary::PreviewScreenShake(UObject* WorldContextObject, TS
 }
 
 // -- PARTICLE BURST --
-void UGameFeelPreviewLibrary::PreviewParticleBurst(UObject* WorlContextObject, UNiagaraSystem* System, FVector Location, float Scale)
+void UGameFeelPreviewLibrary::PreviewParticleBurst(UObject* WorldContextObject, UNiagaraSystem* System, FVector Location, float Scale)
 {
 	if (!System)
 	{

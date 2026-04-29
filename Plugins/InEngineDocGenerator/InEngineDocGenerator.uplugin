@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "InEngineDocGenerator",
-	"Description": "A dockable in-editor development journal",
+	"Description": "A dockable in-editor development journal. Log structured notes by category, timestamped and exportable",
 	"Category": "Other",
 	"CreatedBy": "Oliwia Jakubiak",
 	"CreatedByURL": "",

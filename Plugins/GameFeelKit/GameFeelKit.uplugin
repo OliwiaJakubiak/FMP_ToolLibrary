@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "GameFeelKit",
-	"Description": "A component-based plugin providing essential game feel effects",
+	"Description": "A component-based toolkit for adding juice, impact and polish to any actor with one-click effect triggers.",
 	"Category": "Other",
 	"CreatedBy": "Oliwia Jakubiak",
 	"CreatedByURL": "",

@@ -102,12 +102,15 @@ void FBlockoutToBeautySwapperModule::TriggerBlockoutToBeautySwapper()
 {
     FString WidgetPath = TEXT("/BlockoutToBeautySwapper/UI/EUW_BlockoutToBeautySwapper.EUW_BlockoutToBeautySwapper");
     UObject* WidgetObj = StaticLoadObject(UEditorUtilityWidgetBlueprint::StaticClass(), nullptr, *WidgetPath);
-    if (WidgetObj)
+    if (WidgetObj != nullptr)
     {
         UEditorUtilityWidgetBlueprint* WidgetBP = Cast<UEditorUtilityWidgetBlueprint>(WidgetObj);
-        if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+        if (WidgetBP != nullptr)
         {
-            Subsystem->SpawnAndRegisterTab(WidgetBP);
+            if (UEditorUtilitySubsystem* Subsystem = GEditor->GetEditorSubsystem<UEditorUtilitySubsystem>())
+            {
+                Subsystem->SpawnAndRegisterTab(WidgetBP);
+            }
         }
     }
 }
@@ -124,7 +127,7 @@ void FBlockoutToBeautySwapperModule::ShutdownModule()
 // -- REFRESH SELECTION --
 // Reads level viewport selection via EditorActorSubsystem
 // Reads content browser StaticMesh selection via EditorUtilitySubsystem
-// Returns names for UI display amd references for swap logic 
+// Returns names for UI display and references for swap logic 
 // Called directly from BTN_Refresh OnClicked
 // ----------------------------------------------------------------------
 
@@ -171,7 +174,7 @@ void UBlockoutSwapperLibrary::RefreshSelection(
 // ---------------------------------------------------------------------
 // -- PERFORM SWAP --
 // Handles both single actor and all instances swap
-// Presevres transform - position, rotation and scale
+// Preserves transform - position, rotation and scale
 // Returns affected actor and original mesh references for undo storage
 // Returns log entry for UI display
 // ---------------------------------------------------------------------
@@ -260,4 +263,3 @@ void UBlockoutSwapperLibrary::UndoSwap(
         *OriginalMesh->GetName(), AffectedActors.Num());
 }
 #undef LOCTEXT_NAMESPACE
-	
